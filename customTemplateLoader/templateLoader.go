@@ -7,7 +7,7 @@ import (
 
 const extension = "tem"
 
-type Template struct{
+type Template struct {
 	Path    string
 	Content string
 }

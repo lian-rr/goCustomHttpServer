@@ -1,16 +1,15 @@
 package customHttpServer
 
 import (
-	"net"
-	"fmt"
-	"strings"
 	"bufio"
+	"fmt"
+	"net"
+	"strings"
 )
 
-type server interface{
+type server interface {
 	Request(conn net.Conn) (HttpMethod, string, error)
 	Respond(net.Conn, HttpStatus, contentType, string)
-
 }
 
 type HttpServer struct{}
@@ -30,12 +29,12 @@ func toHttpMethod(method string) HttpMethod {
 	}
 }
 
-func (HttpServer)Request(conn net.Conn) (m HttpMethod, uri string, err error){
+func (HttpServer) Request(conn net.Conn) (m HttpMethod, uri string, err error) {
 	var i int
 	var method string
 
 	scanner := bufio.NewScanner(conn)
-	for scanner.Scan(){
+	for scanner.Scan() {
 		ln := scanner.Text()
 		fmt.Println(ln)
 		if i == 0 {
@@ -52,7 +51,7 @@ func (HttpServer)Request(conn net.Conn) (m HttpMethod, uri string, err error){
 		i++
 	}
 
-	defer func(){
+	defer func() {
 		if r := recover(); r != nil {
 			var ok bool
 			err, ok = r.(error)
@@ -66,7 +65,7 @@ func (HttpServer)Request(conn net.Conn) (m HttpMethod, uri string, err error){
 	return toHttpMethod(method), uri, err
 }
 
-func (HttpServer) Respond(conn net.Conn, status HttpStatus, cType contentType, body *string){
+func (HttpServer) Respond(conn net.Conn, status HttpStatus, cType contentType, body *string) {
 	fmt.Fprintf(conn, "HTTP/1.1 %s\r\n", status)
 	fmt.Fprintf(conn, "Content-Length: %d\r\n", len(*body))
 	fmt.Fprintf(conn, "Content-Type: %s\r\n", cType)

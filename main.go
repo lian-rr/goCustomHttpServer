@@ -1,22 +1,22 @@
 package main
 
 import (
-	"net"
-	"log"
-	"fmt"
 	cHttpServer "customHttpServer"
 	templateLoader "customTemplateLoader"
+	"fmt"
+	"log"
+	"net"
 )
 
 const (
 	internalServerErrorPath = "templates/serverError"
-	notFoundErrorPath = "templates/notFound"
-	badRequestErrorPath = "templates/badRequest"
+	notFoundErrorPath       = "templates/notFound"
+	badRequestErrorPath     = "templates/badRequest"
 )
 
 var resources = make(map[cHttpServer.HttpMethod]map[string]string)
 
-func init(){
+func init() {
 	//Adding URI's of the GET method
 	resources[cHttpServer.Get] = make(map[string]string)
 	resources[cHttpServer.Get]["/"] = "templates/helloWorld"
@@ -47,17 +47,16 @@ func main() {
 	}
 }
 
-
-func request(conn net.Conn, server cHttpServer.HttpServer){
+func request(conn net.Conn, server cHttpServer.HttpServer) {
 	//Request
 	defer conn.Close()
 
-	method,uri,err := server.Request(conn)
+	method, uri, err := server.Request(conn)
 
 	var body *string
 	if err != nil {
 		log.Println(err)
-		body,_ = manageErrorTemplate(cHttpServer.ServerError)
+		body, _ = manageErrorTemplate(cHttpServer.ServerError)
 
 		server.Respond(conn, cHttpServer.ServerError, cHttpServer.TextHtml, body)
 	} else {
@@ -69,10 +68,10 @@ func request(conn net.Conn, server cHttpServer.HttpServer){
 		switch method {
 		//Manage GET Request
 		case cHttpServer.Get:
-			body,err = manageGetRequest(uri)
+			body, err = manageGetRequest(uri)
 		default:
 			//Bad Request
-			body,_ = manageErrorTemplate(cHttpServer.BadRequest)
+			body, _ = manageErrorTemplate(cHttpServer.BadRequest)
 			server.Respond(conn, cHttpServer.BadRequest, cHttpServer.TextHtml, body)
 		}
 		if err == nil {
@@ -80,14 +79,13 @@ func request(conn net.Conn, server cHttpServer.HttpServer){
 			server.Respond(conn, cHttpServer.Sucess, cHttpServer.TextHtml, body)
 		} else {
 			//NotFound
-			body,_ = manageErrorTemplate(cHttpServer.NotFound)
+			body, _ = manageErrorTemplate(cHttpServer.NotFound)
 			server.Respond(conn, cHttpServer.NotFound, cHttpServer.TextHtml, body)
 		}
 	}
 }
 
-
-func manageGetRequest(uri string) (body *string, err error){
+func manageGetRequest(uri string) (body *string, err error) {
 	var tp *templateLoader.Template
 
 	p, ok := resources[cHttpServer.Get][uri]
@@ -100,7 +98,7 @@ func manageGetRequest(uri string) (body *string, err error){
 	return &tp.Content, err
 }
 
-func manageErrorTemplate(st cHttpServer.HttpStatus) (body *string, err error){
+func manageErrorTemplate(st cHttpServer.HttpStatus) (body *string, err error) {
 	var tp *templateLoader.Template
 
 	switch st {
@@ -115,7 +113,7 @@ func manageErrorTemplate(st cHttpServer.HttpStatus) (body *string, err error){
 	return &tp.Content, err
 }
 
-func getTemplate(path string) (t *templateLoader.Template, err error){
+func getTemplate(path string) (t *templateLoader.Template, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			var ok bool
@@ -129,4 +127,3 @@ func getTemplate(path string) (t *templateLoader.Template, err error){
 	}()
 	return templateLoader.Load(path), err
 }
-
