@@ -21,7 +21,7 @@ func init() {
 	resources[cHttpServer.Get] = make(map[string]string)
 	resources[cHttpServer.Get]["/"] = "templates/helloWorld"
 	resources[cHttpServer.Get]["/helloworld"] = "templates/helloWorld"
-	resources[cHttpServer.Get]["/byeworld"] = "templates/helloWorld"
+	resources[cHttpServer.Get]["/byeworld"] = "templates/byeWorld"
 }
 
 func main() {
